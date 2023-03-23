@@ -1,0 +1,15 @@
+{
+    "name": "nikobirbilis/keap-custom-field-analyzer",
+    "autoload": {
+        "psr-4": {
+            "Nikobirbilis\\KeapCustomFieldAnalyzer\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Niko",
+            "email": "nikob381@gmail.com"
+        }
+    ],
+    "require": {}
+}
