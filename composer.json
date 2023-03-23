@@ -11,5 +11,16 @@
             "email": "nikob381@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "vlucas/phpdotenv": "^5.5",
+        "infusionsoft/php-sdk": "^1.5"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "require-dev": {
+        "kint-php/kint": "^5.0"
+    }
 }
