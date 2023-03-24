@@ -30,6 +30,7 @@ if (isset($_GET['code']) and !$infusionsoft->getToken()) {
 
 if ($infusionsoft->getToken()) {
   $_SESSION['token'] = serialize($infusionsoft->getToken());
+  $custom_field_counts = array();
   $customFieldService = $infusionsoft->customFields();
 
   $dataService = $infusionsoft->data();
@@ -46,6 +47,39 @@ if ($infusionsoft->getToken()) {
     $customFields = array_merge($customFields, $results);
     $page++;
   } while (count($results) == $limit);
+
+  $offset = 0;
+  $limit = 100;
+
+  if (empty($custom_field_counts)) {
+
+
+
+  if (empty($custom_field_counts)) {
+    do {
+      $contacts = $infusionsoft->contacts()->with('custom_fields')->where('limit', $limit)->where('offset', $offset)->get()->toArray();
+      $total_count += count($contacts);
+      if (empty($contacts)) {
+        break;
+      }
+      // Go through each custom field of each contact, and increment the count for that field in the $custom_field_counts array
+      foreach ($contacts as $index => $contact) {
+        if (array_key_exists('custom_fields', $contact->getAttributes())) {
+          foreach ($contact->getAttributes()['custom_fields'] as $custom_field) {
+            if (!isset($custom_field_counts[$custom_field['id']])) {
+              $custom_field_counts[$custom_field['id']] = 0;
+            }
+            if (!is_null($custom_field['content'])) {
+              $custom_field_counts[$custom_field['id']]++;
+            }
+          }
+        }
+      }
+
+      $offset += $limit;
+    } while (count($contacts) == $limit);
+    $_SESSION['custom_field_counts'] = $custom_field_counts;
+  }
 
 } else {
   echo '<a rel="nofollow" href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to authorize</a>';
