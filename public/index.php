@@ -5,6 +5,9 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 require_once '../vendor/autoload.php';
 
 use Infusionsoft\Infusionsoft;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+
+$cache = new FilesystemAdapter();
 
 session_start();
 
@@ -37,7 +40,7 @@ if (isset($_GET['code']) and !$infusionsoft->getToken()) {
 
 if ($infusionsoft->getToken()) {
   $_SESSION['token'] = serialize($infusionsoft->getToken());
-  $custom_field_counts = array();
+
   $customFieldService = $infusionsoft->customFields();
 
   $dataService = $infusionsoft->data();
@@ -64,17 +67,20 @@ if ($infusionsoft->getToken()) {
   $limit = 1000;
   $upto = 20000;
 
+  if ($cache->hasItem('custom_field_counts')) {
+    $custom_field_counts = $cache->getItem('custom_field_counts')->get();
+    $offset = $custom_field_counts['offset'];
+    $counts = $custom_field_counts['counts'];
+  } else {
     $offset = 0;
     $counts = array();
-
-  if (empty($custom_field_counts)) {
-
+  }
 
 
-  if (empty($custom_field_counts)) {
+
+  if ($offset <= $upto) {
     do {
       $contacts = $infusionsoft->contacts()->with('custom_fields')->where('limit', $limit)->where('offset', $offset)->get()->toArray();
-      $total_count += count($contacts);
 
       if (empty($contacts)) {
         break;
@@ -96,8 +102,19 @@ if ($infusionsoft->getToken()) {
 
       $offset += $limit;
 
+      // Add contacts to cache
+      $custom_field_counts = [
+        'offset' => $offset,
+        'counts' => $counts,
+      ];
+
+      $cache_item = $cache->getItem('custom_field_counts')->set($custom_field_counts);
+      $cache->save($cache_item);
     } while ($offset <= $upto && count($contacts) == $limit);
   }
+
+  $cache->getItem('custom_field_counts_running')->set(false);
+  $cache->save($cache->getItem('custom_field_counts_running'));
 
 } else {
   echo '<a rel="nofollow" href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to authorize</a>';

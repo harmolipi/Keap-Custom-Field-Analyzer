@@ -13,7 +13,8 @@
     ],
     "require": {
         "vlucas/phpdotenv": "^5.5",
-        "infusionsoft/php-sdk": "^1.5"
+        "infusionsoft/php-sdk": "^1.5",
+        "symfony/cache": "^6.2"
     },
     "config": {
         "allow-plugins": {
