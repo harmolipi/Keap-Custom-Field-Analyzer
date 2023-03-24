@@ -56,7 +56,7 @@ if ($infusionsoft->getToken()) {
   $customFields = array_combine($custom_field_ids, $customFields);
 
   $offset = 0;
-  $limit = 100;
+  $limit = 1000;
 
   if (empty($custom_field_counts)) {
 
