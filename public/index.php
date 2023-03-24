@@ -130,8 +130,6 @@ if ($infusionsoft->getToken()) {
 
 function getCustomFields(Infusionsoft $infusionsoft): array
 {
-  $customFieldService = $infusionsoft->customFields();
-
   $dataService = $infusionsoft->data();
   $query = array('FormId' => -1);
   $select = array('Id', 'Label', 'Name', 'Values', 'FormId');
@@ -149,7 +147,6 @@ function getCustomFields(Infusionsoft $infusionsoft): array
 
   // Set each custom field's key as its id:
   $custom_field_ids = array_column($customFields, 'Id');
-  $customFieldsArray = new ArrayObject($customFields);
   $customFields = array_combine($custom_field_ids, $customFields);
 
   return $customFields;
