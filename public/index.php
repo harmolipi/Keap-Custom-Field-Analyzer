@@ -62,6 +62,10 @@ if ($infusionsoft->getToken()) {
 
   $offset = 0;
   $limit = 1000;
+  $upto = 20000;
+
+    $offset = 0;
+    $counts = array();
 
   if (empty($custom_field_counts)) {
 
@@ -71,26 +75,28 @@ if ($infusionsoft->getToken()) {
     do {
       $contacts = $infusionsoft->contacts()->with('custom_fields')->where('limit', $limit)->where('offset', $offset)->get()->toArray();
       $total_count += count($contacts);
+
       if (empty($contacts)) {
         break;
       }
+
       // Go through each custom field of each contact, and increment the count for that field in the $custom_field_counts array
       foreach ($contacts as $index => $contact) {
         if (array_key_exists('custom_fields', $contact->getAttributes())) {
           foreach ($contact->getAttributes()['custom_fields'] as $custom_field) {
-            if (!isset($custom_field_counts[$custom_field['id']])) {
-              $custom_field_counts[$custom_field['id']] = 0;
+            if (!isset($counts[$custom_field['id']])) {
+              $counts[$custom_field['id']] = 0;
             }
             if (!is_null($custom_field['content'])) {
-              $custom_field_counts[$custom_field['id']]++;
+              $counts[$custom_field['id']]++;
             }
           }
         }
       }
 
       $offset += $limit;
-    } while (count($contacts) == $limit);
-    $_SESSION['custom_field_counts'] = $custom_field_counts;
+
+    } while ($offset <= $upto && count($contacts) == $limit);
   }
 
 } else {
