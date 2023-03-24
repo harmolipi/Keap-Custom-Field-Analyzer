@@ -50,6 +50,11 @@ if ($infusionsoft->getToken()) {
     $page++;
   } while (count($results) == $limit);
 
+  // Set each custom field's key as its id:
+  $custom_field_ids = array_column($customFields, 'Id');
+  $customFieldsArray = new ArrayObject($customFields);
+  $customFields = array_combine($custom_field_ids, $customFields);
+
   $offset = 0;
   $limit = 100;
 
