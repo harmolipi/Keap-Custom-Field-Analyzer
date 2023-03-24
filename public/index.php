@@ -69,7 +69,7 @@ if ($infusionsoft->getToken()) {
     $cache->save($cache->getItem('custom_field_counts_running'));
   }
 
-  if ($offset <= $upto) {
+  if ($offset < $upto) {
     do {
       $contacts = $infusionsoft->contacts()->with('custom_fields')->where('limit', $limit)->where('offset', $offset)->get()->toArray();
 
@@ -101,7 +101,7 @@ if ($infusionsoft->getToken()) {
 
       $cache_item = $cache->getItem($cache_key)->set($custom_field_counts);
       $cache->save($cache_item);
-    } while ($offset <= $upto && count($contacts) == $limit);
+    } while ($offset < $upto && count($contacts) == $limit);
   }
 
   $cache->getItem('custom_field_counts_running')->set(false);
