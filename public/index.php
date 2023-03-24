@@ -124,6 +124,26 @@ if ($infusionsoft->getToken()) {
   $cache->getItem('custom_field_counts_running')->set(false);
   $cache->save($cache->getItem('custom_field_counts_running'));
 
+  // Create array of custom field names and counts
+  $custom_field_counts_by_name = array();
+  foreach ($custom_field_counts['counts'] as $id => $count) {
+    $custom_field_counts_by_name[$customFields[$id]['Name']] = $count;
+  }
+
+  $unused_fields = array_filter($custom_field_counts_by_name, function ($count) {
+    return $count == 0;
+  });
+
+  $rarely_used_fields = array_filter($custom_field_counts_by_name, function ($count) {
+    return $count > 0 && $count < 10;
+  });
+
+  sort($custom_field_counts_by_name);
+
+  // Output:
+  d($unused_fields);
+  d($rarely_used_fields);
+  d($custom_field_counts_by_name);
 } else {
   echo '<a rel="nofollow" href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to authorize</a>';
 }
