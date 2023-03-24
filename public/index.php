@@ -124,6 +124,9 @@ if ($infusionsoft->getToken()) {
   asort($custom_field_counts_by_name);
 
   // Output:
+  echo '<a rel="nofollow" href="?clear">Click here to logout</a>'; // Deauthorize app
+  echo '<br>';
+  echo '<a rel="nofollow" href="?clear_cache">Click here to clear the cache</a>'; // Clear cache
   d($unused_fields);
   d($rarely_used_fields);
   d($custom_field_counts_by_name);
