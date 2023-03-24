@@ -17,9 +17,14 @@ $infusionsoft = new Infusionsoft(array(
   'redirectUri' => $_ENV['REDIRECT_URI'],
 ));
 
-// clear session variables
+// Clear session variables
 if (isset($_GET['clear'])) {
   unset($_SESSION['token']);
+}
+
+// Clear cache
+if (isset($_GET['clear_cache'])) {
+  $cache->clear('custom_field_counts');
 }
 
 if (isset($_SESSION['token'])) {
