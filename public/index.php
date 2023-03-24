@@ -76,7 +76,15 @@ if ($infusionsoft->getToken()) {
     $counts = array();
   }
 
+  $running_flag = $cache->getItem('custom_field_counts_running')->get();
 
+  if ($running_flag) {
+    d('Process is already running. Please try again later.');
+    exit();
+  } else {
+    $cache->getItem('custom_field_counts_running')->set(true);
+    $cache->save($cache->getItem('custom_field_counts_running'));
+  }
 
   if ($offset <= $upto) {
     do {
