@@ -138,7 +138,7 @@ if ($infusionsoft->getToken()) {
     return $count > 0 && $count < 10;
   });
 
-  sort($custom_field_counts_by_name);
+  asort($custom_field_counts_by_name);
 
   // Output:
   d($unused_fields);
