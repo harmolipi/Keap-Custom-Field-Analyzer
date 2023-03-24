@@ -30,6 +30,23 @@ if (isset($_GET['code']) and !$infusionsoft->getToken()) {
 
 if ($infusionsoft->getToken()) {
   $_SESSION['token'] = serialize($infusionsoft->getToken());
+  $customFieldService = $infusionsoft->customFields();
+
+  $dataService = $infusionsoft->data();
+  $query = array('FormId' => -1);
+  $select = array('Id', 'Label', 'Name', 'Values', 'FormId');
+  $orderBy = 'Label';
+  $limit = 1000;
+  $page = 0;
+  $customFields = array();
+  $ascending = true;
+
+  do {
+    $results = $dataService->query('DataFormField', $limit, $page, $query, $select, $orderBy, $ascending);
+    $customFields = array_merge($customFields, $results);
+    $page++;
+  } while (count($results) == $limit);
+
 } else {
   echo '<a rel="nofollow" href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to authorize</a>';
 }
