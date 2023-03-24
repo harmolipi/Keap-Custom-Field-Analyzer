@@ -40,15 +40,18 @@ if (isset($_GET['code']) and !$infusionsoft->getToken()) {
 
 if ($infusionsoft->getToken()) {
   $_SESSION['token'] = serialize($infusionsoft->getToken());
+  $scope = $infusionsoft->getToken()->getExtraInfo()['scope'];
+  $subdomain = explode('.', explode('|', $scope)[1])[0];
+  $cache_key = "custom_field_counts_{$subdomain}";
 
   $customFields = getCustomFields($infusionsoft);
 
   $offset = 0;
   $limit = 1000;
-  $upto = 20000;
+  $upto = 5000;
 
-  if ($cache->hasItem('custom_field_counts')) {
-    $custom_field_counts = $cache->getItem('custom_field_counts')->get();
+  if ($cache->hasItem($cache_key)) {
+    $custom_field_counts = $cache->getItem($cache_key)->get();
     $offset = $custom_field_counts['offset'];
     $counts = $custom_field_counts['counts'];
   } else {
@@ -96,7 +99,7 @@ if ($infusionsoft->getToken()) {
         'counts' => $counts,
       ];
 
-      $cache_item = $cache->getItem('custom_field_counts')->set($custom_field_counts);
+      $cache_item = $cache->getItem($cache_key)->set($custom_field_counts);
       $cache->save($cache_item);
     } while ($offset <= $upto && count($contacts) == $limit);
   }
