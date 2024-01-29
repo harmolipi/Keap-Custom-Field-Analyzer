@@ -14,11 +14,13 @@ session_start();
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-$infusionsoft = new Infusionsoft(array(
-  'clientId' => $_ENV['CLIENT_ID'],
-  'clientSecret' => $_ENV['CLIENT_SECRET'],
-  'redirectUri' => $_ENV['REDIRECT_URI'],
-));
+$infusionsoft = new Infusionsoft(
+  array(
+    'clientId' => $_ENV['CLIENT_ID'],
+    'clientSecret' => $_ENV['CLIENT_SECRET'],
+    'redirectUri' => $_ENV['REDIRECT_URI'],
+  )
+);
 
 // Clear session variables
 if (isset($_GET['clear'])) {
@@ -113,13 +115,19 @@ if ($infusionsoft->getToken()) {
     $custom_field_counts_by_name[$customFields[$id]['Name']] = $count;
   }
 
-  $unused_fields = array_filter($custom_field_counts_by_name, function ($count) {
-    return $count == 0;
-  });
+  $unused_fields = array_filter(
+    $custom_field_counts_by_name,
+    function ($count) {
+      return $count == 0;
+    }
+  );
 
-  $rarely_used_fields = array_filter($custom_field_counts_by_name, function ($count) {
-    return $count > 0 && $count < 10;
-  });
+  $rarely_used_fields = array_filter(
+    $custom_field_counts_by_name,
+    function ($count) {
+      return $count > 0 && $count < 10;
+    }
+  );
 
   asort($custom_field_counts_by_name);
 
