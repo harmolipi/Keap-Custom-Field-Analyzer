@@ -14,7 +14,8 @@
     "require": {
         "vlucas/phpdotenv": "^5.5",
         "infusionsoft/php-sdk": "^1.5",
-        "symfony/cache": "^6.2"
+        "symfony/cache": "^6.2",
+        "php-http/message-factory": "^1.1"
     },
     "config": {
         "allow-plugins": {
