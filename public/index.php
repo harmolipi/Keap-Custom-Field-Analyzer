@@ -47,6 +47,7 @@ if ($infusionsoft->getToken()) {
     $cache_key = "custom_field_counts_{$subdomain}";
 
     $customFields = getCustomFields($infusionsoft);
+    $tags = getAllTags($infusionsoft);
 
     $offset = 0;
     $limit = 1000;
@@ -138,6 +139,7 @@ if ($infusionsoft->getToken()) {
     d($unused_fields);
     d($rarely_used_fields);
     d($custom_field_counts_by_name);
+    d($tags);
 } else {
     echo '<a rel="nofollow" href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to authorize</a>';
 }
@@ -164,4 +166,21 @@ function getCustomFields(Infusionsoft $infusionsoft): array
     $customFields = array_combine($custom_field_ids, $customFields);
 
     return $customFields;
+}
+
+function getAllTags(Infusionsoft $infusionsoft): array
+{
+    $tags = $infusionsoft->tags()->get()->toArray();
+    $formatted_tags = [];
+
+    foreach ($tags as $tag) {
+        $category_name = '';
+        if (isset($tag->category) && isset($tag->category['name'])) {
+            $category_name = $tag->category['name'];
+        }
+
+        $formatted_tags[$tag->id] = ['name' => $tag->name, 'category' => $category_name];
+    }
+
+    return $formatted_tags;
 }
