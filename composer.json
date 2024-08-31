@@ -2,7 +2,8 @@
     "name": "nikobirbilis/keap-custom-field-analyzer",
     "autoload": {
         "psr-4": {
-            "Nikobirbilis\\KeapCustomFieldAnalyzer\\": "src/"
+            "Nikobirbilis\\KeapCustomFieldAnalyzer\\": "src/",
+            "Nikobirbilis\\KeapCustomFieldAnalyzer\\Api\\": "api/"
         }
     },
     "authors": [

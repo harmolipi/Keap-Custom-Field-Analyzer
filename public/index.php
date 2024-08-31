@@ -5,6 +5,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 require_once '../vendor/autoload.php';
 
 use Infusionsoft\Infusionsoft;
+use Nikobirbilis\KeapCustomFieldAnalyzer\Api\InfusionsoftHandler;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 $cache = new FilesystemAdapter();
@@ -16,9 +17,9 @@ $dotenv->load();
 
 $infusionsoft = new Infusionsoft(
     array(
-    'clientId' => $_ENV['CLIENT_ID'],
-    'clientSecret' => $_ENV['CLIENT_SECRET'],
-    'redirectUri' => $_ENV['REDIRECT_URI'],
+        'clientId' => $_ENV['CLIENT_ID'],
+        'clientSecret' => $_ENV['CLIENT_SECRET'],
+        'redirectUri' => $_ENV['REDIRECT_URI'],
     )
 );
 
@@ -48,6 +49,11 @@ if ($infusionsoft->getToken()) {
 
     $customFields = getCustomFields($infusionsoft);
     $tags = getAllTags($infusionsoft);
+
+    // Getting campaign info was throwing 504s so I had to break it up into chunks
+    // $campaigns = getAllCampaigns($infusionsoft, 0, 10);
+    // $campaigns = getAllCampaigns($infusionsoft, 11, 20);
+    // $campaigns = getAllCampaigns($infusionsoft, 21, 0);
 
     $offset = 0;
     $limit = 1000;
@@ -98,8 +104,8 @@ if ($infusionsoft->getToken()) {
 
             // Add contacts to cache
             $custom_field_counts = [
-            'offset' => $offset,
-            'counts' => $counts,
+                'offset' => $offset,
+                'counts' => $counts,
             ];
 
             $cache_item = $cache->getItem($cache_key)->set($custom_field_counts);
@@ -140,6 +146,7 @@ if ($infusionsoft->getToken()) {
     d($rarely_used_fields);
     d($custom_field_counts_by_name);
     d($tags);
+    d($campaigns);
 } else {
     echo '<a rel="nofollow" href="' . $infusionsoft->getAuthorizationUrl() . '">Click here to authorize</a>';
 }
@@ -183,4 +190,39 @@ function getAllTags(Infusionsoft $infusionsoft): array
     }
 
     return $formatted_tags;
+}
+
+function getAllCampaigns(Infusionsoft $infusionsoft, int $startIndex = 0, int $endIndex = 0): array
+{
+    $campaigns = $infusionsoft->campaigns()->with('sequences')->get()->toArray();
+    $formatted_campaigns = [];
+    $count = 0;
+    if ($endIndex === 0) {
+        $endIndex = count($campaigns);
+    }
+
+    foreach ($campaigns as $campaign) {
+        if ($count < $startIndex) {
+            $count++;
+            continue;
+        }
+
+        if ($count >= $endIndex) {
+            break;
+        }
+
+        $expanded_campaign_info = $infusionsoft->campaigns()->with('sequences')->with('goals')->find($campaign->id);
+        $formatted_campaigns[] = [
+            'id' => $campaign->id,
+            'name' => $campaign->name,
+            'active_contacts' => $campaign->active_contact_count,
+            'published_date' => $campaign->published_date,
+            'goals' => $expanded_campaign_info->goals,
+            'sequences' => $expanded_campaign_info->sequences,
+        ];
+
+        $count++;
+    }
+
+    return $formatted_campaigns;
 }
